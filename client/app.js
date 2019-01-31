@@ -1,0 +1,36 @@
+angular.module('myApp',['ui.router'])
+.config(function($stateProvider,$urlRouteProvider,$locationProvider){
+    $stateProvider
+    .state('home',{
+        url:'/home',
+        templateUrl:'templates/home.html'
+    })
+    .state('home.login',{
+        url:'/login',
+        templateUrl:'templates/login.html',
+        controller:'loginCtrl',
+        params:{obj:null}
+    })
+    .state('home.register',{
+        url:'/register',
+        templateUrl:'templates/register.html',
+        controller:'registerCtrl',
+        params:{obj:null}
+    })
+    .state('dashboard',{
+        url:'/dashboard',
+        templateUrl:'templates/home.html',
+        controller:'dashboardCtrl',       
+    })
+    $urlRouteProvider.otherwise('home/login')
+})
+.run(($rootScope,$state,AuthService)=>{
+    $rootScope.$on($stateChangeStart,(event,next,nextparams,fromState)=>{
+       if(!AuthService.isAuthenticated()){
+           if(next.name!='home.login' && next.name!='home.register'){
+               event.preventDefault();
+               $state.go('home.login',{obj:'not authorised'})
+           }
+       } 
+    })
+})

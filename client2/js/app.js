@@ -1,0 +1,21 @@
+angular.module('myApp',['ui.router'])
+.config(($stateProvider,$urlRouterProvider)=>{
+    $stateProvider
+    .state('home',{
+        url:'/home',
+        templateUrl:'home.html'
+    })
+    .state('login',{
+        url:'/login',
+        templateUrl:'login.html',
+        controller:'logCtrl'
+    })
+    .state('register',{
+        url:'/register',
+        templateUrl:'register.html',
+        controller:'regCtrl'
+    })
+    $urlRouterProvider.otherwise('/');
+    }
+
+)

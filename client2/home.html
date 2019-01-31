@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body ng-app='myApp'>
+        This is Homepage!
+        <a ui-sref='register' ui-sref-active="active">Go to register page</a>
+        <a ui-sref='login' ui-sref-active="active">Go to login page</a>
+        <ui-view></ui-view>
+        <script src='js/angular.min.js'></script>        
+        <script src='https://unpkg.com/@uirouter/angularjs@1.0.19/release/angular-ui-router.min.js'></script>
+        <script src='js/app.js'></script>
+        <script src='js/logCtrl.js'></script>
+        <script src='js/regCtrl.js'></script>
+    </body>
+</html>
