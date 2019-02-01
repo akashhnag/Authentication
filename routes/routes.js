@@ -3,7 +3,8 @@ const jwt=require('jsonwebtoken');
 const MongoClient = require('mongodb').MongoClient;
 const bcrypt=require('bcrypt');
 
-const config=require('../config/db');
+const dbDetails=require('../config/db');
+
 module.exports=(app,passport)=>{
     app.get('/',(req,res)=>{
         res.send('Receiving request..')
@@ -11,43 +12,62 @@ module.exports=(app,passport)=>{
 
     //register
     app.post('/register',(req,res)=>{  
-        MongoClient.connect('mongodb://127.0.0.1:27017',(err,db)=>{
+        MongoClient.connect(dbDetails.url,(err,db)=>{
             if(err){
                 console.log(err);                
             }
             else{
-                let dbo=db.db('auth')            
-                bcrypt.hash(req.body.pass, 10, function(err, hash) {
-                    // Store hash in your password DB.
+                let dbo=db.db(dbDetails.name) 
+                console.log(req.body.user);
+                
+                dbo.collection(dbDetails.collection).findOne({user:req.body.user},(err,data)=>{
                     if(err){
-                        console.log('Problem registering user');                
+                        console.log(err);
+                        
                     }
-                    else{
-                        let obj={user:req.body.user,pass:hash}
-                        dbo.collection('users').insertOne(obj,(err,data)=>{
-                            if(err){
-                                console.log(err);                
-                            }
-                            else{
-                                console.log('data',data.ops);
-                                res.send('User registered..')                
-                            }
-                        })
-                    }        
-                });   
+                    else{                                         
+                        if(data===null){                     
+                            bcrypt.hash(req.body.pass, 10, function(err, hash) {
+                                // Store hash in your password DB.
+                                if(err){
+                                    console.log('Problem registering user');                
+                                }
+                                else{
+                                    let obj={user:req.body.user,pass:hash}
+                                    dbo.collection(dbDetails.collection).insertOne(obj,(err,data)=>{
+                                        if(err){
+                                            console.log(err);                
+                                        }
+                                        else{
+                                            
+                                            res.send('User registered..')                
+                                        }
+                                    })
+                                }        
+                            });  
+                        }
+                        else{
+                            console.log('name already present');
+                            console.log('lets see data',data.user);
+                            
+                            res.send('Username already present. please choose different one')
+                        }
+                    }
+                })           
+                
             }
         })  
     })
 
     //login
     app.post('/login',(req,res)=>{
-        MongoClient.connect('mongodb://127.0.0.1:27017',(err,db)=>{
+        MongoClient.connect(dbDetails.url,(err,db)=>{
             if(err){
                 console.log(err);            
             }
             else{
-                let dbo=db.db('auth');
-                dbo.collection('users').findOne({user:req.body.user},(err,data)=>{
+                let dbo=db.db(dbDetails.name);
+                dbo.collection(dbDetails.collection).findOne({user:req.body.user},(err,data)=>{
                     if(err){
                         console.log(err);
                         
@@ -76,13 +96,13 @@ module.exports=(app,passport)=>{
 
     //reset password
     app.post('/reset',(req,res)=>{
-        MongoClient.connect('mongodb://127.0.0.1:27017',(err,db)=>{
+        MongoClient.connect(dbDetails.url,(err,db)=>{
             if(err){
                 console.log(err);            
             }
             else{
-                let dbo=db.db('auth');
-                dbo.collection('users').findOne({user:req.body.user},(err,data)=>{
+                let dbo=db.db(dbDetails.name);
+                dbo.collection(dbDetails.collection).findOne({user:req.body.user},(err,data)=>{
                     if(err){
                         console.log(err);
                         
@@ -103,7 +123,7 @@ module.exports=(app,passport)=>{
                                 }
                                 else{  
                                     try{
-                                        dbo.collection('users').replaceOne({user:req.body.user},{user:req.body.user,pass:hash});
+                                        dbo.collection(dbDetails.collection).replaceOne({user:req.body.user},{user:req.body.user,pass:hash});
                                         res.json({success:true,message:'Password changed'}) 
                                     }
                                     catch(e){

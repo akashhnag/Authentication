@@ -2,13 +2,13 @@ var JwtStrategy = require('passport-jwt').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt;
 
 const MongoClient = require('mongodb').MongoClient;
-var config = require('../config/db')    ;
-
+const db = require('./db');
+console.log(db);
 
 module.exports=(passport)=>{
     var opts = {}
     opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-    opts.secretOrKey = config.secret;
+    opts.secretOrKey = 'akash';
     // opts.issuer = 'accounts.examplesoft.com';
     // opts.audience = 'yoursite.net';
 
